@@ -29,6 +29,7 @@ $(document).ready(function(){
         $("#cn_sc").html(`:${data.sc}`)
     })
     $.getJSON("/admin/count_furniture_products",function(data){
+        console.log("count_furniture",data)
         var data=data.f
         var htm=":"+data.f
         $("#cn_f").html(`:${data.f}`)

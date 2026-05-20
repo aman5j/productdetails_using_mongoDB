@@ -36,12 +36,20 @@ router.get("/fetch_product_type", function (req, res) {
 })
 
 router.get("/fetch_product_category", function (req, res, next) {
-    Category.find({ "producttypeid._id": req.query.typeid }).then((result) => {
+    Category.find({ "producttypeid": req.query.typeid }).then((result) => {
         res.json({ result: result })
     }).catch((e) => {
         res.json({ result: e })
     })
 })
+
+// router.get("/fetch_product_category", function (req, res, next) {
+//     Category.find({ "producttypeid._id": req.query.typeid }).then((result) => {
+//         res.json({ result: result })
+//     }).catch((e) => {
+//         res.json({ result: e })
+//     })
+// })
 
 router.post("/product_submit", upload.single('picture'), function (req, res, next) {
     try {
@@ -167,12 +175,40 @@ router.get("/displaypictureforedit", function(req,res){
     res.render("displaypictureforedit",{data:req.query})
 })
 
+router.post("/edit_picture", upload.single("productpicture"), async function (req, res) {
+    try {
+        const { productid, oldfilename } = req.body;
+
+        // Update new picture in MongoDB
+        await Product.updateOne(
+            { _id: productid },
+            { $set: { productpicture: req.file.filename } }
+        );
+
+        // Delete old picture from folder
+        if (oldfilename) {
+            const oldPath = `D:/Mern/moviedetails/public/images/${oldfilename}`;
+
+            if (fs.existsSync(oldPath)) {
+                fs.unlinkSync(oldPath);
+            }
+        }
+
+        // res.redirect("/product/displayallproducts");
+        res.redirect("/product/fetch_all_products")
+    }
+    catch (e) {
+        console.log("Error:", e);
+        // res.redirect("/product/displayallproducts");
+        res.redirect("/product/fetch_all_products")
+    }
+});
+
 // router.post("/edit_picture",upload.single("productpicture"), function(req,res,next){
 //  console.log("ok")   
 // });
-
   
-/*
+
 
 router.get("/document_details", function(req,res){
    try{
@@ -190,7 +226,7 @@ router.get("/document_details", function(req,res){
 })
 
 
-*/
+
 
 module.exports = router;
 
